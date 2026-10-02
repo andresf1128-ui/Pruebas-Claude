@@ -10,8 +10,8 @@ Avaluador: Andrés Felipe Cuartas Montoya · RAA 1.128.391.782
 
 Manual: `pip install -r requirements.txt && python generar_presentacion.py`
 
-Diapositivas: portada · resumen · predio y método · ofertas · valor/ha y estadísticos · combinaciones ·
-proyección · depreciación Ross-Heidecke · liquidación · observaciones y firma.
+Diapositivas: portada · resumen · predio y método · ofertas · oferta comparable · ofertas descartadas ·
+valor/ha y estadísticos · depreciación Ross-Heidecke · liquidación · observaciones y firma. Las combinaciones y la proyección son de análisis interno y no se presentan.
 Colores tomados del libro (azul marino 1F3864, azul 2F5597, grises, verde claro E2EFDA, amarillo FFF2CC).
 
 ## Usar como modelo para nuevos estudios

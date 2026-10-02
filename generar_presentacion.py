@@ -425,12 +425,13 @@ def construir(D, salida):
     prs.slide_width, prs.slide_height = W, H
     TOTAL = 10
     of, st, sel, py, lq = D["ofertas"], D["est"], D["sel"], D["proy"], D["liq"]
-    cumple = str(sel["cumple"]).upper().startswith("S")
+    cumple = fnum(st.get("COEFICIENTE DE VARIACIÓN"), 9) <= D["cv_max"]
     nvig = sum(1 for o in of if not es_descartada(o))
     tmp = Path(tempfile.mkdtemp())
     topo, gauge = tmp / "topo.png", tmp / "gauge.png"
     img_topo(topo)
-    img_gauge(gauge, sel["cv"], D["cv_max"])
+    cv_gen = fnum(st.get("COEFICIENTE DE VARIACIÓN"))
+    img_gauge(gauge, cv_gen, D["cv_max"])
 
     # ===== 1. Portada =====
     s = prs.slides.add_slide(prs.slide_layouts[6])
@@ -470,16 +471,15 @@ def construir(D, salida):
     kpi_card(s, Inches(5.5), Inches(1.6), kw, kh, "$", "VALOR ADOPTADO", mill(fnum(st.get("VALOR ADOPTADO"))), "por hectárea", size=26)
     kpi_card(s, Inches(9.25), Inches(1.6), kw, kh, "#", "OFERTAS", f"{len(of)} · {nvig} vigente" + ("" if nvig == 1 else "s"),
              f"{len(of) - nvig} descartadas", size=20)
-    kpi_card(s, Inches(5.5), Inches(3.3), kw, kh, "Σ", "COMBINACIÓN ELEGIDA", mill(sel["ha"]), f"{sel['nombre']} · {cop(sel['m2'])}/m²", size=26)
-    kpi_card(s, Inches(9.25), Inches(3.3), kw, kh, "↔", "RANGO ORIENTATIVO", f"{num(py['baja'] / 1e6, 0)} – {num(py['alta'] / 1e6, 0)} M",
-             f"amplitud {mill(py['amp'], 0)}", size=22)
+    kpi_card(s, Inches(5.5), Inches(3.3), kw, kh, "m²", "VALOR POR m²", cop(fnum(st.get("VALOR ADOPTADO")) / 10000), "terreno · valor adoptado", size=24)
+    kpi_card(s, Inches(9.25), Inches(3.3), kw, kh, "▦", "CONSTRUCCIONES", mill(lq["tot_p"] + lq["tot_a"], 1), f"{len(D['constr'])} construcciones · Ross-Heidecke", size=24)
     card(s, Inches(5.5), Inches(5.0), Inches(7.3), Inches(1.65), YELLOW if not cumple else GREEN)
     s.shapes.add_picture(str(gauge), Inches(5.6), Inches(5.05), Inches(2.7), Inches(1.5))
-    text(s, Inches(8.4), Inches(5.12), Inches(4.3), Inches(0.3), "COEFICIENTE DE VARIACIÓN", 10, True, MUTED, spacing=100)
-    text(s, Inches(8.4), Inches(5.38), Inches(4.3), Inches(0.6), pct(sel["cv"]), 30, True, OKGREEN if cumple else RED)
+    text(s, Inches(8.4), Inches(5.12), Inches(4.3), Inches(0.3), "COEFICIENTE DE VARIACIÓN · MUESTRA", 10, True, MUTED, spacing=100)
+    text(s, Inches(8.4), Inches(5.38), Inches(4.3), Inches(0.6), pct(cv_gen), 30, True, OKGREEN if cumple else RED)
     text(s, Inches(8.4), Inches(5.98), Inches(4.3), Inches(0.65),
          (f"Cumple el máximo de {pct(D['cv_max'], 0)} (Res. 941)." if cumple else
-          f"No cumple el máximo de {pct(D['cv_max'], 0)}: valores orientativos; se requieren más ofertas."), 11, False, INK2)
+          f"Supera el máximo de {pct(D['cv_max'], 0)} (Res. 941): se requieren más ofertas del mismo segmento."), 11, False, INK2)
 
     # ===== 3. Predio y alcance =====
     s = base(prs, "Predio y método", "Predio objeto y alcance", "Identificación del inmueble y marco metodológico", 3, TOTAL)
@@ -503,7 +503,7 @@ def construir(D, salida):
     mets = [("Método de mercado", "Comparación de ofertas depuradas por % de negociación."),
             ("Estadística", "Promedio, desviación, CV, límites y asimetría."),
             ("Res. 941 · rural", f"CV máximo {pct(D['cv_max'], 0)}; sin homogenización por factores."),
-            ("Combinaciones", "Grupos de 3 o más ofertas con el menor CV."),
+            ("Depuración", "Descarte de ofertas no comparables por uso, ubicación o fiabilidad."),
             ("Construcciones", "Depreciación Ross-Heidecke por estado."),
             ("Liquidación", "Terreno + construcciones, redondeo a la centena.")]
     for i, (k, v) in enumerate(mets):
@@ -533,8 +533,48 @@ def construir(D, salida):
          "M = millones de pesos. ALTA = comparable en uso agropecuario · DESCARTADA = turístico, playa, campestre o dato no confiable.",
          10, False, MUTED, italic=True)
 
+    # ===== 5. Oferta(s) comparable(s) =====
+    s = base(prs, "Mercado", "Oferta comparable", "Ofertas vigentes con uso agropecuario · detalle de la fuente", 5, TOTAL)
+    vig = [o for o in of if not es_descartada(o)] or of[:1]
+    vig = vig[:3]
+    ch_ = 5.1 / len(vig) - 0.15 if len(vig) > 1 else 5.05
+    for i, o in enumerate(vig):
+        y0 = 1.6 + i * (ch_ + 0.15)
+        card(s, Inches(0.6), Inches(y0), Inches(12.15), Inches(ch_), accent=ACCENT)
+        pn = rrect(s, Inches(0.8), Inches(y0 + 0.2), Inches(3.4), Inches(ch_ - 0.4), NAVY, 0.06)
+        grad(pn, DEEP, BLUE, 60)
+        text(s, Inches(1.0), Inches(y0 + 0.3), Inches(3.0), Inches(0.3), f"OFERTA {o['no']:02d}", 11, True, ACCENT, spacing=250)
+        text(s, Inches(1.0), Inches(y0 + 0.7), Inches(3.0), Inches(0.9), mill(o["ha"], 1), 34, True, WHITE)
+        text(s, Inches(1.0), Inches(y0 + 1.5), Inches(3.0), Inches(0.3), "por hectárea (depurado)", 11, False, G2)
+        text(s, Inches(1.0), Inches(y0 + 2.05), Inches(3.0), Inches(0.3), f"{num(o['area'], 2)} ha  ·  pedido {mill(o['pedido'], 0)}", 11, True, WHITE)
+        datos = [("UBICACIÓN", o["ubic"]), ("DESCRIPCIÓN", o["desc"]), ("FUENTE", f"{o['fuente']}  ·  publicada {o['fecha']}"),
+                 ("COMPARABILIDAD", o["comp"])]
+        yy = y0 + 0.2
+        hs = [0.6, 1.25, 0.6, 0.85] if len(vig) == 1 else [0.5, 0.75, 0.45, 0.55]
+        for (k, v), hh_ in zip(datos, hs):
+            text(s, Inches(4.5), Inches(yy), Inches(8), Inches(0.25), k, 9, True, MUTED, spacing=120)
+            text(s, Inches(4.5), Inches(yy + 0.22), Inches(8.1), Inches(hh_), recortar(v, 330), 12 if len(vig) == 1 else 10.5, False, INK2)
+            yy += hh_ + 0.22
+
+    # ===== 6. Ofertas descartadas =====
+    s = base(prs, "Depuración", "Ofertas revisadas y descartadas", "Criterios por los cuales no se incluyeron en el valor adoptado", 6, TOTAL)
+    desc = [o for o in of if es_descartada(o)][:8]
+    card(s, Inches(0.6), Inches(1.55), Inches(12.15), Inches(5.2))
+    rh_ = min(0.62, 4.9 / max(len(desc), 1))
+    for i, o in enumerate(desc):
+        y0 = 1.65 + i * rh_
+        if i % 2 == 0:
+            rect(s, Inches(0.75), Inches(y0), Inches(11.85), Inches(rh_), RGBColor(0xF7, 0xF9, 0xFC))
+        circle_num(s, Inches(0.9), Inches(y0 + rh_ / 2 - 0.2), Inches(0.4), o["no"], G1, NAVY, 12)
+        text(s, Inches(1.5), Inches(y0), Inches(4.3), Inches(rh_), recortar(o["ubic"], 80), 10.5, True, NAVY, anchor=MSO_ANCHOR.MIDDLE)
+        text(s, Inches(5.9), Inches(y0), Inches(1.5), Inches(rh_), mill(o["ha"], 1) + "/ha", 11, True, INK2, PP_ALIGN.RIGHT, MSO_ANCHOR.MIDDLE)
+        motivo = o["comp"].split(" – ", 1)[-1] if " – " in o["comp"] else o["comp"]
+        text(s, Inches(7.6), Inches(y0), Inches(5.0), Inches(rh_), recortar(motivo, 150), 10, False, INK2, anchor=MSO_ANCHOR.MIDDLE)
+    if not desc:
+        text(s, Inches(0.9), Inches(3.5), Inches(11), Inches(0.6), "No hay ofertas descartadas en este estudio.", 16, True, MUTED, PP_ALIGN.CENTER)
+
     # ===== 5. Gráfico y estadísticos =====
-    s = base(prs, "Estadística", "Valor por hectárea y estadísticos", "Muestra general · $ millones por ha (escala logarítmica)", 5, TOTAL)
+    s = base(prs, "Estadística", "Valor por hectárea y estadísticos", "Muestra general · $ millones por ha (escala logarítmica)", 7, TOTAL)
     card(s, Inches(0.6), Inches(1.55), Inches(7.9), Inches(5.2))
     cd = CategoryChartData()
     cd.categories = [f"Of. {o['no']}" for o in of]
@@ -590,73 +630,6 @@ def construir(D, salida):
     text(s, Inches(9.0), Inches(5.1), Inches(3.6), Inches(0.3), "VALOR ADOPTADO", 10, True, ACCENT, spacing=250)
     text(s, Inches(9.0), Inches(5.45), Inches(3.6), Inches(0.8), mill(fnum(st.get("VALOR ADOPTADO"))), 36, True, WHITE)
     text(s, Inches(9.0), Inches(6.2), Inches(3.6), Inches(0.4), "por hectárea · muestra general", 11, False, G2)
-
-    # ===== 6. Combinaciones =====
-    s = base(prs, "Combinaciones", "Combinaciones de ofertas", f"Grupos de 3 o más ofertas · CV máximo admisible {pct(D['cv_max'], 0)} (Res. 941)", 6, TOTAL)
-    nc = max(len(D["combos"]), 1)
-    cw = (12.15 - 0.25 * (nc - 1)) / nc
-    topcv = max([c_["cv"] for c_ in D["combos"]] + [D["cv_max"] * 2]) * 1.15
-    for i, c_ in enumerate(D["combos"]):
-        cx = Inches(0.6 + i * (cw + 0.25))
-        es_sel = c_["nombre"] == sel["nombre"]
-        card(s, cx, Inches(1.6), Inches(cw), Inches(3.35), accent=ACCENT)
-        if es_sel:
-            rrect(s, cx, Inches(1.6), Inches(cw), Inches(3.35), None, 0.05, line=BLUE)
-            pill(s, cx + Inches(cw - 1.6), Inches(1.78), Inches(1.45), Inches(0.3), "SELECCIONADA", BLUE, WHITE, 9)
-        text(s, cx + Inches(0.2), Inches(1.75), Inches(cw - 1.8), Inches(0.4), c_["nombre"], 16, True, NAVY)
-        text(s, cx + Inches(0.2), Inches(2.2), Inches(cw - 0.4), Inches(0.3), "OFERTAS: " + str(c_["ofertas"]), 10, True, MUTED, spacing=100)
-        ok = str(c_["cumple"]).upper().startswith("S")
-        text(s, cx + Inches(0.2), Inches(2.55), Inches(2.4), Inches(0.9), pct(c_["cv"]), 36, True, OKGREEN if ok else RED)
-        pill(s, cx + Inches(cw - 1.4), Inches(2.85), Inches(1.2), Inches(0.34), "CUMPLE" if ok else "NO CUMPLE", OKGREEN if ok else RED, WHITE, 9)
-        progress(s, cx + Inches(0.2), Inches(3.62), Inches(cw - 0.4), Inches(0.16), c_["cv"] / topcv,
-                 OKGREEN if ok else RED, G2, D["cv_max"] / topcv)
-        text(s, cx + Inches(0.2), Inches(3.8), Inches(cw - 0.4), Inches(0.28), f"│ máximo admisible {pct(D['cv_max'], 0)}", 9, False, OKGREEN)
-        text(s, cx + Inches(0.2), Inches(4.2), Inches(1.8), Inches(0.28), "Promedio $/ha", 9, True, MUTED)
-        text(s, cx + Inches(0.2), Inches(4.43), Inches(1.9), Inches(0.4), mill(c_["prom"]), 15, True, NAVY)
-        text(s, cx + Inches(cw / 2), Inches(4.2), Inches(1.8), Inches(0.28), "Desv. estándar", 9, True, MUTED)
-        text(s, cx + Inches(cw / 2), Inches(4.43), Inches(1.9), Inches(0.4), mill(c_["de"]), 15, True, NAVY)
-    band = rrect(s, Inches(0.6), Inches(5.2), Inches(12.15), Inches(1.5), NAVY, 0.08, shadow=True)
-    grad(band, DEEP, BLUE, 0)
-    text(s, Inches(0.9), Inches(5.35), Inches(4), Inches(0.3), "COMBINACIÓN SELECCIONADA", 10, True, ACCENT, spacing=250)
-    text(s, Inches(0.9), Inches(5.7), Inches(4.2), Inches(0.5), sel["nombre"], 24, True, WHITE)
-    text(s, Inches(0.9), Inches(6.2), Inches(4.3), Inches(0.4), f"Ofertas {sel['ofertas']}", 12, False, G2)
-    for i, (k, v, col) in enumerate([("CV", pct(sel["cv"]), RED if not cumple else ACCENT), ("¿CUMPLE?", sel["cumple"], RED if not cumple else ACCENT),
-                                    ("VALOR POR HA", mill(sel["ha"]), WHITE), ("VALOR POR M²", cop(sel["m2"]), WHITE)]):
-        x = Inches(5.3 + i * 1.95)
-        rect(s, x - Inches(0.12), Inches(5.45), Emu(12000), Inches(1.0), SKY, alpha=60)
-        text(s, x, Inches(5.4), Inches(1.8), Inches(0.3), k, 9, True, SKY, spacing=150)
-        text(s, x, Inches(5.75), Inches(1.85), Inches(0.7), v, 20, True, col)
-
-    # ===== 7. Proyección =====
-    s = base(prs, "Proyección", "Proyección del valor esperado", "Rango de orientación entre dos combinaciones de referencia · sin valor puntual", 7, TOTAL)
-    kpi_card(s, Inches(0.6), Inches(1.6), Inches(3.9), Inches(1.45), "↓", "REFERENCIA BAJA · $/ha", mill(py["baja"]), str(py["nbaja"]), size=26)
-    kpi_card(s, Inches(4.7), Inches(1.6), Inches(3.9), Inches(1.45), "↑", "REFERENCIA ALTA · $/ha", mill(py["alta"]), str(py["nalta"]), size=26)
-    kpi_card(s, Inches(8.8), Inches(1.6), Inches(3.95), Inches(1.45), "↔", "AMPLITUD DEL RANGO", mill(py["amp"]),
-             f"{pct(py['amp'] / py['baja'], 0)} de la referencia baja" if py["baja"] else "", size=26)
-    card(s, Inches(0.6), Inches(3.25), Inches(12.15), Inches(2.0))
-    text(s, Inches(0.85), Inches(3.35), Inches(8), Inches(0.3), "POSICIÓN DEL VALOR ADOPTADO FRENTE AL RANGO · $ millones por ha", 10, True, MUTED, spacing=100)
-    lo, hi = py["baja"] / 1e6, py["alta"] / 1e6
-    adop = fnum(st.get("VALOR ADOPTADO")) / 1e6
-    vmin, vmax = min(lo, adop) * 0.8, max(hi, adop) * 1.2
-    bx, bw, by = Inches(1.0), Inches(11.4), Inches(4.3)
-    px = lambda v: int(bx + bw * (v - vmin) / (vmax - vmin))
-    rrect(s, bx, by, bw, Inches(0.36), G2, 0.5)
-    seg = rrect(s, px(lo), by, max(px(hi) - px(lo), Inches(0.1)), Inches(0.36), NAVY, 0.5)
-    grad(seg, NAVY, BLUE, 0)
-    for v, lab in ((lo, f"Baja {num(lo, 1)}"), (hi, f"Alta {num(hi, 1)}")):
-        circle_num(s, px(v) - Inches(0.14), by + Inches(0.04), Inches(0.28), "", WHITE, NAVY)
-        text(s, px(v) - Inches(0.9), by + Inches(0.45), Inches(1.8), Inches(0.35), lab, 12, True, NAVY, PP_ALIGN.CENTER)
-    rect(s, px(adop) - Emu(15000), by - Inches(0.35), Emu(30000), Inches(0.35), OKGREEN)
-    circle_num(s, px(adop) - Inches(0.17), by + Inches(0.01), Inches(0.34), "", ACCENT, NAVY)
-    text(s, px(adop) - Inches(1.3), by - Inches(0.7), Inches(2.6), Inches(0.35), f"Adoptado {num(adop, 1)}", 12, True, OKGREEN, PP_ALIGN.CENTER)
-    rows = [["Referencia", "Combinación", "Ofertas", "Promedio $/ha", "$/m²", "CV", "¿Cumple?"]]
-    cols = {}
-    for i, r_ in enumerate(py["ref"], start=1):
-        rows.append([r_[0], r_[1], r_[2], mill(fnum(r_[3])), cop(fnum(r_[4])), pct(fnum(r_[5])), r_[6]])
-        cols[(i, 6)] = RED if str(r_[6]).upper() == "NO" else OKGREEN
-    tabla(s, Inches(0.6), Inches(5.45), Inches(12.15), rows, [1.6, 1.6, 1.3, 1.6, 1.2, 0.9, 1.0], row_h=0.34, colors=cols,
-          align=[PP_ALIGN.LEFT, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT, PP_ALIGN.CENTER])
-    text(s, Inches(0.6), Inches(6.55), Inches(12.15), Inches(0.5), recortar(py["nota"], 260), 10, False, MUTED, italic=True)
 
     # ===== 8. Depreciación =====
     s = base(prs, "Construcciones", "Depreciación de construcciones", "Método Ross-Heidecke · barra = valor remanente (1 − depreciación)", 8, TOTAL)
