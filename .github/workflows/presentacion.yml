@@ -20,7 +20,14 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: python generar_presentacion.py
+      - name: Generar presentación (recalcula con LibreOffice si el Excel no trae resultados guardados)
+        run: |
+          XLSX=Estudio_Mercado_Rural_Puente_Bomba_Tigreras.xlsx
+          if ! python generar_presentacion.py "$XLSX"; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq libreoffice-calc
+            mkdir recalculado && soffice --headless --convert-to xlsx --outdir recalculado "$XLSX"
+            python generar_presentacion.py "recalculado/$XLSX"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: presentacion

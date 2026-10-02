@@ -13,3 +13,9 @@ Manual: `pip install -r requirements.txt && python generar_presentacion.py`
 Diapositivas: portada · resumen · predio y método · ofertas · valor/ha y estadísticos · combinaciones ·
 proyección · depreciación Ross-Heidecke · liquidación · observaciones y firma.
 Colores tomados del libro (azul marino 1F3864, azul 2F5597, grises, verde claro E2EFDA, amarillo FFF2CC).
+
+## Usar como modelo para nuevos estudios
+
+Reemplace las ofertas y construcciones en el Excel (sin cambiar los nombres de las hojas ni su estructura) y suba el archivo:
+la presentación se regenera sola con los nuevos datos. Acepta cualquier número de ofertas y de construcciones.
+El avaluador (nombre y RAA) está definido al inicio de `generar_presentacion.py`.
