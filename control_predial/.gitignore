@@ -1,0 +1,5 @@
+config.json
+estado/
+web/data.json
+web/data.tmp
+__pycache__/

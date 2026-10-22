@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Control Predial Hidroarma</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: barra superior, KPIs, filtros, y dos columnas (lista de predios + ficha del predio seleccionado). */
+:root{
+  --bg:#f3f6f7; --panel:#ffffff; --ink:#14262e; --muted:#5d727b; --line:#d9e2e6;
+  --accent:#0b6f7e; --accent-soft:#dff0f2; --accent-ink:#ffffff;
+  --alta:#b3261e; --alta-bg:#fbe4e2; --media:#9a6200; --media-bg:#fbefd2; --baja:#52646c; --baja-bg:#e8eef0; --ok:#1f7a4d; --ok-bg:#dcf1e5;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif; --f-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1a1f; --panel:#15262d; --ink:#e4eef1; --muted:#8fa7b0; --line:#25393f; --accent:#4fc1d0; --accent-soft:#17383f; --accent-ink:#06242a;
+  --alta:#ff8f86; --alta-bg:#3d1c1a; --media:#f0be63; --media-bg:#3a2e12; --baja:#9db2ba; --baja-bg:#1f3239; --ok:#6fd49c; --ok-bg:#15352a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1a1f; --panel:#15262d; --ink:#e4eef1; --muted:#8fa7b0; --line:#25393f; --accent:#4fc1d0; --accent-soft:#17383f; --accent-ink:#06242a;
+  --alta:#ff8f86; --alta-bg:#3d1c1a; --media:#f0be63; --media-bg:#3a2e12; --baja:#9db2ba; --baja-bg:#1f3239; --ok:#6fd49c; --ok-bg:#15352a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;padding-block:0 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px;padding-top:20px}
+h1{font-family:var(--f-display);font-size:28px;line-height:1.1;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;font-size:13px}
+.tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);padding:3px 8px;border-radius:4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.kpi .l{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-family:var(--f-display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:2px}
+.kpi .n{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.warn .v{color:var(--alta)}
+.status{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.status button{font:inherit;font-weight:500;background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:6px 12px;cursor:pointer}
+.status button:disabled{opacity:.6;cursor:wait}
+.banner{background:var(--alta-bg);color:var(--alta);border-radius:8px;padding:10px 14px;font-size:13px}
+.chg{display:flex;flex-wrap:wrap;gap:6px 18px;padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;font-weight:500;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:8px 14px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--accent);border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible,tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+.filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0}
+.filters select,.filters input{font:inherit;font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 8px;min-width:0;width:100%}
+.main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}
+.panel h2{font-family:var(--f-display);font-size:16px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel h2 span{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted)}
+.scroll{overflow:auto;max-height:640px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th{position:sticky;top:0;background:var(--panel);text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--accent-soft)}
+tbody tr[aria-selected="true"]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.mi{font-family:var(--f-mono);font-weight:500}
+.pill{display:inline-block;font-size:11.5px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--baja-bg);color:var(--baja)}
+.pill.alta{background:var(--alta-bg);color:var(--alta)}.pill.media{background:var(--media-bg);color:var(--media)}.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.sh{font-size:11px;color:var(--accent);font-weight:500}
+.ficha{padding:14px;display:flex;flex-direction:column;gap:14px}
+.ficha .top{display:flex;flex-direction:column;gap:4px}
+.ficha .big{font-family:var(--f-mono);font-size:22px;font-weight:500}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+dt{color:var(--muted);font-size:12px}dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.doc{display:flex;gap:6px;align-items:center;font-size:12.5px;padding:5px 8px;border-radius:6px;border:1px solid var(--line)}
+.doc i{font-style:normal;font-weight:600}
+.doc.y{color:var(--ok)}.doc.n{color:var(--muted)}
+.doc.na{opacity:.45}
+.al{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.al li{display:flex;gap:8px;align-items:flex-start}
+h3{font-family:var(--f-display);font-size:13px;margin:0 0 6px;letter-spacing:.02em}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.chart{padding:14px;display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;height:22px;border-radius:5px;overflow:hidden;background:var(--baja-bg)}
+.bar div{min-width:2px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.legend b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.note{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:8px;padding:10px 14px}
+.empty{padding:28px 14px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:no-preference){tbody tr{transition:background .12s}}
+</style>
+</head><body>
+<div class="wrap">
+<header>
+  <div><h1>Control Predial Hidroarma</h1>
+  <p class="sub">Sonsón · Aguadas · corte documental 21-oct-2026 · SharePoint, NotebookLM y matriz maestra</p></div>
+  <div class="status"><span class="tag" id="stamp">Cargando…</span><button id="btnAct" type="button">Actualizar ahora</button></div>
+</header>
+<section class="kpis" id="kpis" aria-label="Indicadores"></section>
+<div class="charts">
+  <div class="panel chart"><h3>Estado del cotejo por folio</h3><div class="bar" id="bEst"></div><div class="legend" id="lEst"></div></div>
+  <div class="panel chart"><h3>Gestión por lado de trabajo</h3><div id="gest"></div></div>
+</div>
+<div class="tabs" role="tablist"><button role="tab" aria-selected="true" id="tP">Predios</button><button role="tab" aria-selected="false" id="tA">Alertas</button><button role="tab" aria-selected="false" id="tC">Calidad de datos</button></div>
+<section class="filters" id="filters" aria-label="Filtros">
+  <label>Buscar matrícula, vereda o radicado<input id="q" type="search" placeholder="028-3147, Perrillo, 2026439…"></label>
+  <label>Municipio<select id="fMun"></select></label>
+  <label>Gestión<select id="fGest"></select></label>
+  <label>Estado del cotejo<select id="fEst"></select></label>
+  <label>Documento faltante<select id="fDoc"></select></label>
+  <label>Alerta<select id="fAl"></select></label>
+</section>
+<div class="main" id="vP">
+  <div class="panel"><h2>Predios <span id="cnt"></span></h2><div class="scroll"><table><thead><tr><th>Matrícula</th><th>Municipio</th><th>Gestión</th><th>Cotejo</th><th>Archivos</th><th>Fotos</th><th>Alertas</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+  <aside class="panel" id="fi" aria-live="polite"></aside>
+</div>
+<div class="panel" id="vA" hidden><h2>Alertas <span id="cntA"></span></h2><div class="scroll"><table><thead><tr><th>Prioridad</th><th>Matrícula</th><th>Municipio</th><th>Gestión</th><th>Alerta</th></tr></thead><tbody id="tbA"></tbody></table></div></div>
+<div class="banner" id="err" hidden></div>
+<div class="panel" id="vC" hidden><h2>Calidad de datos <span id="cntC"></span></h2><div class="chg" id="chg"></div><div class="scroll"><table><thead><tr><th>Nivel</th><th>Control</th><th>Detalle</th></tr></thead><tbody id="tbC"></tbody></table></div></div>
+<p class="note">Se actualiza solo: el servidor vuelve a leer la carpeta sincronizada del proyecto, la matriz y el export de NotebookLM cuando detecta cambios. Las fotos compartidas entre predios colindantes se cuentan como evidencia compartida. Las prioridades de las alertas son reglas editables en <code>sync.py</code>.</p>
+</div>
+<script>
+let D=[],META={},CAL=[],CAMB={};
+const $=id=>document.getElementById(id);
+const DOCS=['CTL','Escritura','F. catastral','F. predial','Plano','Avalúo/acta','Soporte judicial'];
+const ESTC={'Sin dato de NotebookLM':'media','Conciliado':'ok','Fotos por conciliar':'media','Falta cuaderno':'alta','Sin cuaderno · servidumbre':'','Folio derivado · soporte en folio matriz':'acc'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>n==null?'—':n.toLocaleString('es-CO');
+const maxP=o=>o.al.some(a=>a[0]==='Alta')?'Alta':o.al.some(a=>a[0]==='Media')?'Media':o.al.length?'Baja':'';
+function kpis(){
+  const hi=D.filter(o=>maxP(o)==='Alta').length, me=D.filter(o=>maxP(o)==='Media').length;
+  const k=[['Folios',D.length,`Sonsón ${D.filter(o=>o.mun==='Sonsón').length} · Aguadas ${D.filter(o=>o.mun==='Aguadas').length}`],
+  ['Con carpeta propia',D.filter(o=>o.rel==='Propia').length,`${D.filter(o=>o.rel!=='Propia').length} derivados con folio matriz`],
+  ['Archivos en el Drive',fmt(META.archivos),`${fmt(META.carpetas)} carpetas · ${fmt(META.imagenes)} imágenes`],
+  ['Fotos distintas',fmt(META.fotos_distintas),'las compartidas se cuentan una vez'],
+  ['Folios con cuaderno',D.filter(o=>o.cuad).length,META.cuadernos==null?'sin export de NotebookLM':`${META.cuadernos} cuadernos · ${fmt(META.fuentes_cuadernos)} fuentes`],
+  ['Conciliados',D.filter(o=>o.est==='Conciliado').length,`de ${D.filter(o=>o.cuad).length} con cuaderno`],
+  ['Con KMZ',D.filter(o=>o.kmz).length,`${Math.round(100*D.filter(o=>o.kmz).length/D.length)}% georreferenciados`],
+  ['Folios con alerta alta',hi,`${me} con prioridad media`,'warn']];
+  $('kpis').innerHTML=k.map(x=>`<div class="kpi ${x[3]||''}"><div class="l">${x[0]}</div><div class="v">${x[1]}</div><div class="n">${x[2]}</div></div>`).join('');
+}
+function charts(){
+  const cs=[['Sin dato de NotebookLM','var(--media)'],['Conciliado','var(--ok)'],['Fotos por conciliar','var(--media)'],['Falta cuaderno','var(--alta)'],['Sin cuaderno · servidumbre','var(--baja)'],['Folio derivado · soporte en folio matriz','var(--accent)']];
+  const c={};D.forEach(o=>c[o.est]=(c[o.est]||0)+1);
+  const cs2=cs.filter(x=>c[x[0]]);
+  $('bEst').innerHTML=cs2.map(([k,col])=>`<div title="${esc(k)}: ${c[k]||0}" style="background:${col};flex:${c[k]||0}"></div>`).join('');
+  $('lEst').innerHTML=cs2.map(([k,col])=>`<span><i class="sw" style="background:${col}"></i>${esc(k.replace(' · soporte en folio matriz',''))} <b>${c[k]||0}</b></span>`).join('');
+  const g={};D.forEach(o=>{(g[o.lado]??={})[o.gest]=(g[o.lado][o.gest]||0)+1});
+  const col={Compraventa:'var(--accent)',Expropiación:'var(--alta)',Servidumbre:'var(--baja)'};
+  $('gest').innerHTML=Object.keys(g).map(l=>{const t=Object.values(g[l]).reduce((a,b)=>a+b,0);
+    return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>${esc(l)==='Cañaveral'?'Cañaveral · Sonsón':'Encimadas · Aguadas'}</span><b>${t}</b></div><div class="bar">${Object.keys(col).map(k=>`<div title="${k}: ${g[l][k]||0}" style="background:${col[k]};flex:${g[l][k]||0}"></div>`).join('')}</div></div>`}).join('')
+   +`<div class="legend">${Object.keys(col).map(k=>`<span><i class="sw" style="background:${col[k]}"></i>${k} <b>${D.filter(o=>o.gest===k).length}</b></span>`).join('')}</div>`;
+}
+function opts(id,label,vals){$(id).innerHTML=`<option value="">${label}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join('')}
+opts('fMun','Todos',['Sonsón','Aguadas']);opts('fGest','Todas',['Compraventa','Expropiación','Servidumbre']);
+opts('fEst','Todos',Object.keys(ESTC));opts('fDoc','Ninguno',DOCS);opts('fAl','Todas',['Alta','Media','Baja','Sin alertas']);
+let sel=null,view='P';
+function filtered(){
+  const q=$('q').value.trim().toLowerCase(),m=$('fMun').value,g=$('fGest').value,e=$('fEst').value,d=$('fDoc').value,a=$('fAl').value;
+  return D.filter(o=>(!q||(o.mi+' '+o.vereda+' '+o.ubic+' '+o.rad).toLowerCase().includes(q))&&(!m||o.mun===m)&&(!g||o.gest===g)&&(!e||o.est===e)
+    &&(!d||(o.rel==='Propia'&&!o.docs[d]))&&(!a||(a==='Sin alertas'?!o.al.length:maxP(o)===a)));
+}
+function render(){
+  const L=filtered();
+  if(view==='P'){
+    $('cnt').textContent=`${L.length} de ${D.length}`;
+    $('tb').innerHTML=L.length?L.map(o=>{const p=maxP(o);return `<tr tabindex="0" data-mi="${o.mi}" ${o.mi===sel?'aria-selected="true"':''}><td class="mi">${o.mi}</td><td>${o.mun}</td><td>${o.gest}</td><td><span class="pill ${ESTC[o.est]||''}">${esc(o.est.replace(' · soporte en folio matriz','').replace('Sin cuaderno · servidumbre','Sin cuaderno'))}</span></td><td>${o.rel==='Propia'?o.archivos:'—'}</td><td>${o.fotos||'—'}${o.comp?` <span class="sh" title="${o.comp} foto(s) compartida(s) con otros predios">·${o.comp} comp.</span>`:''}</td><td>${p?`<span class="pill ${p.toLowerCase()}">${p} · ${o.al.length}</span>`:'—'}</td></tr>`}).join(''):`<tr><td colspan="7" class="empty">Ningún predio cumple los filtros.</td></tr>`;
+    if(!sel||!L.some(o=>o.mi===sel)){ficha(L[0]?.mi)}
+  } else if(view==='A'){
+    const rows=L.flatMap(o=>o.al.map(a=>({o,a}))).sort((x,y)=>['Alta','Media','Baja'].indexOf(x.a[0])-['Alta','Media','Baja'].indexOf(y.a[0]));
+    $('cntA').textContent=`${rows.length} alertas en ${L.length} predios`;
+    $('tbA').innerHTML=rows.map(({o,a})=>`<tr data-mi="${o.mi}"><td><span class="pill ${a[0].toLowerCase()}">${a[0]}</span></td><td class="mi">${o.mi}</td><td>${o.mun}</td><td>${o.gest}</td><td style="white-space:normal">${esc(a[1])}</td></tr>`).join('')||`<tr><td colspan="5" class="empty">Sin alertas con estos filtros.</td></tr>`;
+  }
+}
+function ficha(mi){
+  const o=D.find(x=>x.mi===mi);sel=o?.mi||null;
+  document.querySelectorAll('#tb tr').forEach(r=>r.setAttribute('aria-selected',r.dataset.mi===sel));
+  if(!o){$('fi').innerHTML='<div class="empty">Elige un predio para ver su ficha.</div>';return}
+  const chk=o.rel==='Propia';
+  $('fi').innerHTML=`<h2>Ficha del predio <span>${esc(o.lado)==='Cañaveral'?'Cañaveral':'Encimadas'}</span></h2><div class="ficha">
+  <div class="top"><div class="big">${o.mi}</div><div><span class="pill acc">${o.gest}</span> <span class="pill ${ESTC[o.est]||''}">${esc(o.est)}</span></div></div>
+  <dl><dt>Municipio</dt><dd>${o.mun}</dd><dt>Ubicación</dt><dd>${esc(o.ubic)||'—'}</dd>
+  <dt>Radicado</dt><dd>${chk?o.rad:'Sin carpeta propia · matriz '+o.matriz}</dd>
+  <dt>Archivos / fotos</dt><dd>${chk?o.archivos:'—'} archivos · ${o.fotos} fotos${o.comp?` (${o.comp} compartidas con predios colindantes)`:''}</dd>
+  <dt>Cuaderno</dt><dd>${o.cuad?'Sí'+(o.fcuad!=null?` · ${o.fcuad} fotos`:''):'No'}</dd>
+  <dt>Área</dt><dd>${o.area!=null?fmt(o.area)+' m²':'No determinada'}</dd>
+  <dt>Valor registrado</dt><dd>${o.valor?'$'+Number(o.valor).toLocaleString('es-CO'):'—'}</dd>
+  <dt>Geometría KMZ</dt><dd>${o.kmz?'Asociada':'Sin geometría'}</dd>
+  ${o.campo?`<dt>Afectación en campo</dt><dd>${esc(o.campo)}${o.vereda?' · '+esc(o.vereda):''}</dd>`:''}
+  <dt>Estado registral</dt><dd>${esc(o.estreg)||'—'}</dd></dl>
+  <div><h3>${chk?'Documentos en la carpeta':'Documentos del folio matriz '+o.matriz}</h3><div class="docs">${DOCS.map(k=>{const na=(k==='Soporte judicial')!==(o.gest==='Expropiación');const y=o.docs[k];return `<div class="doc ${na?'na n':y?'y':'n'}"><i>${y?'✓':'–'}</i>${k}</div>`}).join('')}</div></div>
+  <div><h3>Alertas del predio</h3>${o.al.length?`<ul class="al">${o.al.map(a=>`<li><span class="pill ${a[0].toLowerCase()}">${a[0]}</span><span>${esc(a[1])}</span></li>`).join('')}</ul>`:'<span class="pill ok">Sin alertas</span>'}</div></div>`;
+}
+['q','fMun','fGest','fEst','fDoc','fAl'].forEach(id=>$(id).addEventListener('input',render));
+document.addEventListener('click',e=>{const r=e.target.closest('tr[data-mi]');if(!r)return;
+  if(view==='A'){setView('P');$('q').value=r.dataset.mi;}
+  sel=r.dataset.mi;render();ficha(sel)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-mi]'))e.target.click()});
+function setView(v){view=v;$('vP').hidden=v!=='P';$('vA').hidden=v!=='A';$('vC').hidden=v!=='C';$('filters').hidden=v==='C';
+  ['P','A','C'].forEach(k=>$('t'+k).setAttribute('aria-selected',v===k));render()}
+$('tP').onclick=()=>setView('P');$('tA').onclick=()=>setView('A');$('tC').onclick=()=>setView('C');
+function calidad(){
+  const c=CAMB||{};
+  $('chg').innerHTML=c.primera?'<span>Primera lectura: aún no hay cambios que comparar.</span>':`<span><b>${(c.nuevos||[]).length}</b> archivos nuevos</span><span><b>${(c.modificados||[]).length}</b> modificados</span><span><b>${(c.eliminados||[]).length}</b> eliminados</span><span class="sub">desde la lectura anterior</span>`
+   +[['Nuevos',c.nuevos],['Modificados',c.modificados],['Eliminados',c.eliminados]].filter(x=>x[1]&&x[1].length).map(x=>`<details style="flex-basis:100%"><summary>${x[0]}</summary>${x[1].slice(0,60).map(esc).join('<br>')}</details>`).join('');
+  $('cntC').textContent=`${CAL.length} controles`;
+  $('tbC').innerHTML=CAL.length?CAL.map(r=>`<tr><td><span class="pill ${({Alta:'alta',Media:'media',Baja:'',Info:'acc'})[r[0]]}">${r[0]}</span></td><td>${esc(r[1])}</td><td style="white-space:normal">${esc(r[2])}</td></tr>`).join(''):'<tr><td colspan="3" class="empty">Sin hallazgos de calidad.</td></tr>';
+}
+async function cargar(){
+  try{
+    const r=await fetch('data.json',{cache:'no-store'});if(!r.ok)throw new Error('sin datos');
+    const j=await r.json();
+    if(META.generado===j.meta.generado)return;
+    D=j.folios;META=j.meta;CAL=j.calidad;CAMB=j.cambios;
+    kpis();charts();render();calidad();
+    $('stamp').textContent='Actualizado '+META.generado.slice(11,16)+' · '+META.generado.slice(0,10);
+  }catch(e){$('stamp').textContent='Sin datos todavía'}
+  try{const e=await (await fetch('/api/estado',{cache:'no-store'})).json();
+    $('err').hidden=!e.error;$('err').textContent=e.error?'No se pudo actualizar: '+e.error+'. Se muestra la última lectura buena.':''}catch(_){}
+}
+$('btnAct').onclick=async()=>{const b=$('btnAct');b.disabled=true;b.textContent='Leyendo…';
+  try{await fetch('/api/actualizar',{method:'POST'})}catch(_){}
+  await cargar();b.disabled=false;b.textContent='Actualizar ahora'};
+cargar();setInterval(cargar,30000);
+</script>
+
+</body></html>
