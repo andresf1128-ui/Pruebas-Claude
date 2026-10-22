@@ -62,6 +62,24 @@ def escanear(raiz):
     return archivos, carpetas
 
 
+def cargar_inventario(ruta):
+    """Inventario exportado (exportar_inventario.py) o captura de SharePoint ({files, folders:[{p}]})."""
+    d = json.loads(Path(ruta).read_text(encoding='utf-8'))
+    archivos = [{'dir': nfc(f.get('dir', '')).strip('/'), 'name': nfc(f['name']), 'len': int(f['len']), 'mod': f.get('mod', 0)} for f in d['files']]
+    carpetas = {''}
+    for f in d.get('folders', []):
+        if isinstance(f, dict):
+            p = nfc(f['p'])
+            marca = '1 Proyecto Hidroarma'
+            f = p.split(marca)[1].strip('/') if marca in p else p.strip('/')
+        carpetas.add(nfc(f).strip('/'))
+    for a in archivos:
+        parts = a['dir'].split('/') if a['dir'] else []
+        for i in range(1, len(parts) + 1):
+            carpetas.add('/'.join(parts[:i]))
+    return archivos, carpetas
+
+
 def leer_json(ruta, defecto=None):
     p = Path(ruta) if ruta else None
     return json.loads(p.read_text(encoding='utf-8')) if p and p.exists() else defecto
@@ -90,30 +108,39 @@ def revisar_formato(texto, mi, v):
     return motivos
 
 
+def candidatos_formatos(cfg, fo):
+    """Borradores del formato: de carpetas locales (.docx) o de un export (`borradores_json`: [{archivo, carpeta, mod, texto}])."""
+    rx = re.compile(fo['patron_archivo'], re.I)
+    exts = tuple('.' + e for e in fo.get('extensiones', ['docx']))
+    for b in leer_json(cfg.get('borradores_json'), []):
+        yield b['archivo'], b.get('carpeta', ''), b.get('mod', 0), b.get('texto')
+    for base in cfg.get('formatos_carpetas', {}).get(fo['id'], []):
+        if not Path(base).exists():
+            continue
+        for d, _, fs in os.walk(base):
+            for f in fs:
+                if f.startswith('~$') or not f.lower().endswith(exts):
+                    continue
+                ruta = Path(d) / f
+                yield nfc(f), nfc(os.path.relpath(d, base)).replace('\\', '/'), int(ruta.stat().st_mtime), (texto_docx(ruta) if f.lower().endswith('.docx') else None)
+
+
 def escanear_formatos(cfg, P, MAT, matriz):
-    """Borradores diligenciados en carpetas locales: {formato: {matrícula: [{archivo, ruta, motivos}]}}."""
+    """Borradores diligenciados: {formato: {matrícula: [{archivo, carpeta, mod, motivos}]}}."""
     out = {}
     for fo in P.get('formatos', []):
         rx = re.compile(fo['patron_archivo'], re.I)
-        exts = tuple('.' + e for e in fo.get('extensiones', ['docx']))
         hall = collections.defaultdict(list)
-        for base in cfg.get('formatos_carpetas', {}).get(fo['id'], []):
-            if not Path(base).exists():
+        for f, carpeta, mod, texto in candidatos_formatos(cfg, fo):
+            if not rx.search(f) and not MAT.search(f):
                 continue
-            for d, _, fs in os.walk(base):
-                for f in fs:
-                    if f.startswith('~$') or not f.lower().endswith(exts) or not rx.search(f) and not MAT.search(f):
-                        continue
-                    ruta = Path(d) / f
-                    mis = {m for m in MAT.findall(nfc(f)) if m in matriz}
-                    texto = texto_docx(ruta) if f.lower().endswith('.docx') else None
-                    if not mis and texto:  # el nombre no trae matrícula: se busca en el contenido
-                        c = collections.Counter(m for m in MAT.findall(texto) if m in matriz)
-                        mis = {c.most_common(1)[0][0]} if c else set()
-                    for mi in mis:
-                        mot = revisar_formato(texto, mi, fo.get('verificacion', {})) if texto is not None else ['no se pudo leer el archivo']
-                        hall[mi].append({'archivo': nfc(f), 'carpeta': nfc(os.path.relpath(d, base)).replace('\\', '/'),
-                                         'mod': int(ruta.stat().st_mtime), 'motivos': mot})
+            mis = {m for m in MAT.findall(nfc(f)) if m in matriz}
+            if not mis and texto:  # el nombre no trae matrícula: se busca en el contenido
+                c = collections.Counter(m for m in MAT.findall(texto) if m in matriz)
+                mis = {c.most_common(1)[0][0]} if c else set()
+            for mi in mis:
+                mot = revisar_formato(texto, mi, fo.get('verificacion', {})) if texto is not None else ['no se pudo leer el archivo']
+                hall[mi].append({'archivo': f, 'carpeta': carpeta, 'mod': mod, 'motivos': mot})
         out[fo['id']] = hall
     return out
 
@@ -145,7 +172,7 @@ def evaluar_alertas(P, f, ctx):
 def construir(cfg, P):
     t0 = time.time()
     matriz = cargar_matriz(cfg['matriz_xlsx'], P)
-    archivos, carpetas = escanear(cfg['carpeta_proyecto'])
+    archivos, carpetas = cargar_inventario(cfg['inventario_json']) if cfg.get('inventario_json') else escanear(cfg['carpeta_proyecto'])
     cuad = leer_json(cfg.get('cuadernos_json'))
     marcas = leer_json(ESTADO_DIR / 'marcas.json', {})
     reglas = compilar(P['clases'])
@@ -306,21 +333,22 @@ def construir(cfg, P):
         calidad.append(['Media', 'Sin export de NotebookLM', 'No se encontró el archivo de cuadernos; el estado del cotejo no se puede calcular.'])
 
     # --- cambios frente a la lectura anterior ---
-    snap_p = ESTADO_DIR / 'snapshot.json'
+    snap_p = Path(cfg['snapshot']) if cfg.get('snapshot') else ESTADO_DIR / 'snapshot.json'
     ahora = {f"{a['dir']}/{a['name']}": a['len'] for a in archivos}
     cambios = {'nuevos': [], 'modificados': [], 'eliminados': [], 'primera': True}
     ant = leer_json(snap_p)
     if ant is not None:
         cambios = {'primera': False, 'nuevos': sorted(set(ahora) - set(ant)), 'eliminados': sorted(set(ant) - set(ahora)),
                    'modificados': sorted(k for k in ahora if k in ant and ant[k] != ahora[k])}
-    ESTADO_DIR.mkdir(exist_ok=True)
-    snap_p.write_text(json.dumps(ahora, ensure_ascii=False), encoding='utf-8')
+    if cfg.get('guardar_snapshot', True):
+        snap_p.parent.mkdir(parents=True, exist_ok=True)
+        snap_p.write_text(json.dumps(ahora, ensure_ascii=False), encoding='utf-8')
 
     orden = {'Alta': 0, 'Media': 1, 'Baja': 2, 'Info': 3}
     calidad.sort(key=lambda x: (orden[x[0]], x[1]))
     meta = {
-        'proyecto': P['nombre'], 'generado': datetime.now().isoformat(timespec='seconds'), 'segundos': round(time.time() - t0, 1),
-        'archivos': len(archivos), 'carpetas': len(carpetas) - (1 if '' in carpetas else 0),
+        'corte': cfg.get('corte', ''), 'proyecto': P['nombre'], 'generado': datetime.now().isoformat(timespec='seconds'), 'segundos': round(time.time() - t0, 1),
+        'archivos': len(archivos), 'carpetas': len(carpetas),
         'imagenes': sum(1 for a in archivos if a['name'].lower().endswith(IMG)),
         'fotos_distintas': len({(a['name'].lower(), a['len']) for a in archivos if a['name'].lower().endswith(IMG)}),
         'cuadernos': None if cuad is None else len(cuad),
@@ -328,10 +356,9 @@ def construir(cfg, P):
         'municipios': P['municipios'], 'gestiones': P['gestiones'],
         'documentos': [{k: d.get(k) for k in ('nombre', 'solo_gestiones', 'excepto_gestiones')} for d in P['documentos']],
         'formatos': [{'id': f['id'], 'nombre': f['nombre'], 'gestiones': f.get('gestiones', P['gestiones']), 'marca_manual': f.get('marca_manual', False)} for f in P.get('formatos', [])],
-        'carpeta': str(cfg['carpeta_proyecto'])}
-    salida = {'meta': meta, 'folios': folios, 'calidad': calidad,
-              'cambios': {k: v[:200] if isinstance(v, list) else v for k, v in cambios.items()}}
-    destino = AQUI / 'web' / 'data.json'
+        'carpeta': str(cfg.get('carpeta_proyecto') or cfg.get('inventario_json'))}
+    salida = {'meta': meta, 'folios': folios, 'calidad': calidad, 'cambios': cambios}
+    destino = Path(cfg['salida_data']) if cfg.get('salida_data') else AQUI / 'web' / 'data.json'
     tmp = destino.with_suffix('.tmp')
     tmp.write_text(json.dumps(salida, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     tmp.replace(destino)
@@ -343,7 +370,7 @@ def leer_config(ruta=None):
     if not p.exists():
         sys.exit(f'Falta {p}. Copia config.example.json a config.json y completa las rutas.')
     cfg = json.loads(p.read_text(encoding='utf-8'))
-    for k in ('carpeta_proyecto', 'matriz_xlsx'):
+    for k in (('inventario_json' if cfg.get('inventario_json') else 'carpeta_proyecto'), 'matriz_xlsx'):
         if not Path(cfg.get(k, '')).exists():
             sys.exit(f'No existe la ruta de «{k}»: {cfg.get(k)}')
     pp = Path(cfg.get('proyecto', ''))

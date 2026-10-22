@@ -30,6 +30,9 @@ en el nombre (o, si no la trae, por la más repetida en su contenido) y se revis
 ejemplo de la plantilla y mención de la matrícula. El usuario puede confirmar a mano (Pendiente, En proceso, Completo, Revisado).
 `python verificar.py` recalcula las cifras desde los archivos y las compara con la referencia del proyecto.
 
+## Para actualizar el tablero publicado
+Ver `../ACTUALIZAR.md`. `exportar_inventario.py` corre en tu PC; `actualizar.py` cruza los archivos y deja los conjuntos de datos del tablero.
+
 ## Qué no
 - **NotebookLM** no tiene API pública. Se lee del archivo `cuadernos_json`; actualízalo cuando cambien los cuadernos.
 - **Valores, titulares y áreas** vienen de la matriz maestra; si cambia el Anexo, actualiza ese Excel.

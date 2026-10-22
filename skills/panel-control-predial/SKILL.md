@@ -41,3 +41,17 @@ Referencia viva: `proyectos/hidroarma.json`. El código está en `motor/` y no c
 - La lectura directa de SharePoint (Microsoft Graph) requiere que un administrador registre una app; el motor actual
   usa la carpeta sincronizada, que no lo requiere.
 - El panel lee la carpeta de un equipo; para varios usuarios hay que publicar `web/` y `data.json` desde un equipo central.
+
+## Actualizar el artefacto con archivos nuevos (sin conector de Microsoft 365)
+El tablero publicado en claude.ai (Hidroarma: https://claude.ai/artifact/E5hiEtfxisEBbRVi4FZyyg) no lee SharePoint. Se actualiza así:
+1. **El usuario sube al chat**: `inventario.json` (lo genera `motor/exportar_inventario.py` en su PC; solo nombres y tamaños), el Excel madre,
+   el export de NotebookLM (`cuadernos.json`) y, si hay, `borradores.json` (formato 1.1). Ver `ACTUALIZAR.md` para el usuario.
+2. **Cruzar** (desde `motor/`):
+   `python actualizar.py --inventario <inventario.json> --matriz <excel> --cuadernos <cuadernos.json> [--borradores <borradores.json>] --corte "<fecha>" --salida <dir>`
+   Lo que no se subió no se inventa: sin `--borradores` el formato 1.1 queda «Sin borrador»; sin cuadernos, «Sin dato de NotebookLM».
+3. **Subir** los JSON de `<dir>` (`folios`, `alertas`, `calidad`, `fuente`, `formatos`, `cambios`) como archivos del artefacto, uno por llamada
+   (`Artifact` con `asset: true`, `url` y `file_path`), y **actualizar** cada `datasets/<id>` con `update` (`source.url` nuevo, `updated`), pasando `if_version`.
+   No tocar `files/index.html` salvo que cambie el diseño.
+4. **Informar** al usuario los cambios (nuevos, modificados, eliminados), los estados que cambiaron y las alertas nuevas; el snapshot
+   (`estado/hidroarma_snapshot.json`) se guarda en el repositorio para comparar la próxima vez: hacer commit de él.
+5. Nunca presentar como «en vivo» lo que viene de un archivo: el tablero muestra el corte de la última carga.
