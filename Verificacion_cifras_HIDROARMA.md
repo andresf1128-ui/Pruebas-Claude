@@ -59,10 +59,12 @@ Limitación: es la captura del 21-oct, no una lectura de hoy; el ZIP lo generó 
 | Fotos solo en SharePoint / solo en cuaderno | 24 / 7 | 24 / 7 |
 | Carpeta vacía (H-19) | «REGISTRO FOTOGRÁFICO» (0 archivos) | consistente |
 
-## Nuevo hallazgo (no está en los hallazgos del libro)
-**Fotos idénticas (mismo nombre y tamaño) repetidas en carpetas de distintos folios: 11 grupos, 27 copias de más.**
-- 1792278815580/700/787/860.jpg: 5 carpetas, 028-3148 (Sonsón) y 102-13491, 102-13570, 102-13573, 102-13587 (Aguadas). Cruza los dos lados de trabajo.
-- 1792087615367/452.jpg: 028-8567, 028-8570, 028-24662, 028-24663. Y 1792087612750.jpg: 028-24662 y 028-24663.
+## Fotos repetidas entre carpetas: evidencia compartida (aclarado por el usuario)
+Son tomas a distancia de predios casi colindantes, por eso la misma foto está en la carpeta de cada folio al que sirve. **No es un error ni se debe depurar.**
+Hay 11 grupos de imágenes idénticas (nombre y tamaño), 27 copias de más:
+- 1792278815580/700/787/860.jpg: 028-3148 (Sonsón) y 102-13491, 102-13570, 102-13573, 102-13587 (Aguadas).
+- 1792087615367/452.jpg: 028-8567, 028-8570, 028-24662, 028-24663. 1792087612750.jpg: 028-24662 y 028-24663.
 - TimePhoto_20261014_143623/625/646.jpg: 028-26765 y 028-26767.
-- «FORMA DE LLEGADA.jpg» duplicada dentro de 102-9927 (H-17).
-Consecuencia: las fotos distintas son ~445, no 471 (el tablero solo desduplica dentro de un mismo folio). Hay que decidir a qué folio pertenece cada foto antes de usarlas como evidencia.
+- «FORMA DE LLEGADA.jpg» dos veces dentro de 102-9927 (esta sí es copia accidental, H-17).
+
+Consecuencia solo para el conteo: las fotos distintas son ~445 y las asignaciones foto-folio son 472. Los tableros deben mostrar ambas cifras ("fotos distintas" y "fotos asignadas a folios") y marcar cada foto como compartida, no como duplicada. El modelo de datos de la app trata la relación foto↔folio como muchos a muchos.
