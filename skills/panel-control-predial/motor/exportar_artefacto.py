@@ -38,7 +38,9 @@ def convertir(d, corte, salida):
            'imagenes': m['imagenes'], 'fotos_distintas': m['fotos_distintas'], 'cuadernos': m['cuadernos'], 'fuentes_cuadernos': m['fuentes_cuadernos']}]
     c = d['cambios']
     cam = []
-    if not c.get('primera'):
+    if c.get('primera'):
+        cam.append({'id': 'base|1', 'tipo': 'Base', 'ruta': f"Carga inicial: {m['archivos']} archivos en {m['carpetas']} carpetas. Desde la próxima carga se listan los cambios.", 'corte': corte})
+    else:
         for tipo, lst in (('Nuevo', c['nuevos']), ('Modificado', c['modificados']), ('Eliminado', c['eliminados'])):
             for i, ruta in enumerate(lst[:300]):
                 cam.append({'id': f'{tipo}|{i + 1}', 'tipo': tipo, 'ruta': ruta, 'corte': corte})
