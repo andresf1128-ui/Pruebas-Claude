@@ -37,3 +37,32 @@ Alcance: consistencia interna del libro (recalculado desde las tablas crudas con
 - Contenido del PDF «Acuerdo No. 80-17-14» (H-03) y los 25 archivos nuevos.
 - Conteo en vivo de cuadernos NotebookLM (45 / 579 fuentes).
 - Datos del Anexo Predial Final (valores, titulares, áreas): no se recibió el archivo origen.
+
+---
+
+# Adenda · verificación contra la captura en vivo de SharePoint y NotebookLM (ZIP «Cotejo_evidencia_2026-10-21»)
+
+Fuente: `sharepoint_inventario_en_vivo_2026-10-21.json` y `notebooklm_cuadernos_en_vivo_2026-10-21.json`, recalculados de forma independiente (no se usaron los totales del Excel).
+Limitación: es la captura del 21-oct, no una lectura de hoy; el ZIP lo generó el mismo proceso que construyó el libro, así que confirma que el libro refleja la captura, no que la captura siga vigente.
+
+## Confirmado
+| Dato | Captura cruda | Excel |
+|---|---|---|
+| Archivos | 1.719 (sin duplicados de ruta, 0 errores de lectura) | 1.719 |
+| Carpetas | 143 | 143 |
+| Archivos por folio (93 folios) | | 0 diferencias |
+| Imágenes (.jpg/.jpeg/.png) | 472 | 472 |
+| Cuadernos NotebookLM | 45 | 45 |
+| Fuentes | 579, las 579 con estado procesado | 579 |
+| Fotos en cuadernos / audio / fuentes externas | 454 / 71 / 9 | 454 / 71 / 9 |
+| Fuentes por cuaderno | | 0 diferencias (45 de 45) |
+| Fotos solo en SharePoint / solo en cuaderno | 24 / 7 | 24 / 7 |
+| Carpeta vacía (H-19) | «REGISTRO FOTOGRÁFICO» (0 archivos) | consistente |
+
+## Nuevo hallazgo (no está en los hallazgos del libro)
+**Fotos idénticas (mismo nombre y tamaño) repetidas en carpetas de distintos folios: 11 grupos, 27 copias de más.**
+- 1792278815580/700/787/860.jpg: 5 carpetas, 028-3148 (Sonsón) y 102-13491, 102-13570, 102-13573, 102-13587 (Aguadas). Cruza los dos lados de trabajo.
+- 1792087615367/452.jpg: 028-8567, 028-8570, 028-24662, 028-24663. Y 1792087612750.jpg: 028-24662 y 028-24663.
+- TimePhoto_20261014_143623/625/646.jpg: 028-26765 y 028-26767.
+- «FORMA DE LLEGADA.jpg» duplicada dentro de 102-9927 (H-17).
+Consecuencia: las fotos distintas son ~445, no 471 (el tablero solo desduplica dentro de un mismo folio). Hay que decidir a qué folio pertenece cada foto antes de usarlas como evidencia.
