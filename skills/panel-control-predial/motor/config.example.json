@@ -1,4 +1,6 @@
 {
+  "proyecto": "../proyectos/hidroarma.json",
+  "formatos_carpetas": { "1.1": ["C:/Users/TU_USUARIO/Downloads/APOYOS AVALUOS/PROYECTO HIDROARMA/SONSON/ANALISIS NORMATIVO POR PREDIO/BORRADORES_3.1_SONSON_ACTUALIZADO_2026-10-19", "C:/Users/TU_USUARIO/Downloads/APOYOS AVALUOS/PROYECTO HIDROARMA/AGUADAS/ANALISIS NORMATIVO POR PREDIO"] },
   "carpeta_proyecto": "C:/Users/TU_USUARIO/OneDrive - Makler/1 Proyecto Hidroarma",
   "matriz_xlsx": "C:/Users/TU_USUARIO/OneDrive - Makler/1 Proyecto Hidroarma/HIDROARMA_Control_Predial_360_Integral_v2.xlsx",
   "cuadernos_json": "C:/Users/TU_USUARIO/Documents/hidroarma/notebooklm_cuadernos.json",

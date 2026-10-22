@@ -1,0 +1,313 @@
+{
+  "nombre": "Hidroarma",
+  "descripcion": "Control predial 360: compraventa, expropiación y servidumbre en Sonsón (Cañaveral) y Aguadas (Encimadas).",
+  "matriz": {
+    "hoja": "Matriz maestra",
+    "fila_encabezado": 5,
+    "clave": "Matrícula",
+    "columnas": {
+      "lado": "Lado de trabajo",
+      "mun": "Municipio según ubicación del Anexo",
+      "gest": "Gestión / derecho real",
+      "rel_x": "Relación con carpeta del Drive",
+      "ubic": "Ubicación / procedencia literal",
+      "area": "Área interpretada (m²)",
+      "valor": "Valor registrado",
+      "kmz": "Geometría KMZ asociada",
+      "campo": "Afectación según campo",
+      "vereda": "Dato de campo asociado",
+      "estreg": "Comentarios / estado registral anotado"
+    },
+    "valor_derivado": "Carpeta propia"
+  },
+  "patron_matricula": "(?<![\\d-])(\\d{3}-\\d{1,6})(?![\\d-])",
+  "patron_radicado": "^(\\d{8})\\b",
+  "rotulos_lado": {
+    "028": "cañaveral",
+    "102": "encimadas"
+  },
+  "gestiones": [
+    "Compraventa",
+    "Expropiación",
+    "Servidumbre"
+  ],
+  "municipios": [
+    "Sonsón",
+    "Aguadas"
+  ],
+  "clases": [
+    {
+      "nombre": "^forma de llegada",
+      "ext": [
+        "kmz"
+      ],
+      "clase": "KMZ"
+    },
+    {
+      "nombre": "^forma de llegada",
+      "clase": "Acceso / llegada"
+    },
+    {
+      "nombre": "^(?=.*acta)(?=.*reuni)",
+      "clase": "Acta de reunión"
+    },
+    {
+      "nombre": "^acta.*aval",
+      "clase": "Acta de avalúo"
+    },
+    {
+      "nombre": "cornare",
+      "clase": "Ambiental"
+    },
+    {
+      "nombre": "sentencia",
+      "clase": "Sentencia"
+    },
+    {
+      "nombre": "expropiacion",
+      "ext": [
+        "kmz"
+      ],
+      "clase": "Soporte expropiatorio"
+    },
+    {
+      "ext": [
+        "kmz"
+      ],
+      "clase": "KMZ"
+    },
+    {
+      "nombre": "^aval",
+      "ext": [
+        "pdf"
+      ],
+      "clase": "Avalúo"
+    },
+    {
+      "nombre": "^(?=.*(resoluci|oficio))(?=.*(riesgo|autoriza|expropia))",
+      "clase": "Soporte expropiatorio"
+    },
+    {
+      "nombre": "certificado",
+      "ext": [
+        "pdf"
+      ],
+      "clase": "CTL"
+    },
+    {
+      "nombre": "^(?=.*escritura)(?=.*servidumbre)",
+      "clase": "Escritura de servidumbre"
+    },
+    {
+      "nombre": "^escritura",
+      "clase": "Escritura"
+    },
+    {
+      "nombre": "^\\d|anexo predial",
+      "ext": [
+        "xlsx",
+        "xls"
+      ],
+      "clase": "Formato / control"
+    },
+    {
+      "nombre": "ficha catastral",
+      "clase": "Ficha catastral"
+    },
+    {
+      "nombre": "ficha predial",
+      "clase": "Ficha predial"
+    },
+    {
+      "nombre": "^plano",
+      "clase": "Plano"
+    },
+    {
+      "nombre": "acuerdo no",
+      "clase": "Norma urbanística (PBOT)"
+    },
+    {
+      "nombre": "formato|informe",
+      "ext": [
+        "docx"
+      ],
+      "clase": "Formato / informe"
+    },
+    {
+      "ext": [
+        "jpg",
+        "jpeg",
+        "png",
+        "heic",
+        "webp"
+      ],
+      "clase": "Fotografía / imagen"
+    }
+  ],
+  "clase_por_defecto": "Otro soporte",
+  "documentos": [
+    {
+      "nombre": "CTL",
+      "clases": [
+        "CTL"
+      ],
+      "excepto_gestiones": [
+        "Expropiación"
+      ]
+    },
+    {
+      "nombre": "Escritura",
+      "clases": [
+        "Escritura",
+        "Escritura de servidumbre"
+      ],
+      "excepto_gestiones": [
+        "Expropiación"
+      ]
+    },
+    {
+      "nombre": "F. catastral",
+      "clases": [
+        "Ficha catastral"
+      ]
+    },
+    {
+      "nombre": "F. predial",
+      "clases": [
+        "Ficha predial"
+      ]
+    },
+    {
+      "nombre": "Plano",
+      "clases": [
+        "Plano"
+      ],
+      "tambien_nombre": "plano"
+    },
+    {
+      "nombre": "Avalúo/acta",
+      "clases": [
+        "Avalúo",
+        "Acta de avalúo"
+      ]
+    },
+    {
+      "nombre": "Soporte judicial",
+      "clases": [
+        "Soporte expropiatorio",
+        "Sentencia"
+      ],
+      "solo_gestiones": [
+        "Expropiación"
+      ]
+    }
+  ],
+  "alertas": [
+    {
+      "cuando": "estado",
+      "valor": "Falta cuaderno",
+      "prioridad": "Alta",
+      "texto": "Folio con carpeta propia sin cuaderno de NotebookLM"
+    },
+    {
+      "cuando": "estado",
+      "valor": "Fotos por conciliar",
+      "prioridad": "Media",
+      "texto": "{sp_only} foto(s) en el Drive sin cargar al cuaderno, {nb_only} solo en cuaderno"
+    },
+    {
+      "cuando": "falta_doc",
+      "doc": "CTL",
+      "prioridad": "Alta",
+      "texto": "Falta CTL en la carpeta"
+    },
+    {
+      "cuando": "falta_doc",
+      "doc": "Escritura",
+      "prioridad": "Media",
+      "texto": "Falta escritura en la carpeta"
+    },
+    {
+      "cuando": "falta_doc",
+      "doc": "Soporte judicial",
+      "prioridad": "Media",
+      "texto": "Expropiación sin soporte judicial nombrado"
+    },
+    {
+      "cuando": "sin_area",
+      "excepto_gestiones": [
+        "Expropiación"
+      ],
+      "prioridad": "Media",
+      "texto": "Área no interpretable en el Anexo"
+    },
+    {
+      "cuando": "derivado",
+      "prioridad": "Baja",
+      "texto": "Sin carpeta propia: soporte en folio matriz {matriz}"
+    },
+    {
+      "cuando": "sin_kmz",
+      "prioridad": "Baja",
+      "texto": "Sin geometría KMZ asociada"
+    }
+  ],
+  "formatos": [
+    {
+      "id": "1.1",
+      "nombre": "Formato 1.1 · análisis normativo rural",
+      "patron_archivo": "normativo|1\\.1|3\\.1",
+      "extensiones": [
+        "docx"
+      ],
+      "gestiones": [
+        "Compraventa",
+        "Expropiación",
+        "Servidumbre"
+      ],
+      "marca_manual": true,
+      "verificacion": {
+        "secciones_requeridas": [
+          "NORMATIVIDAD",
+          "TOPOGRAF",
+          "CONDICIONES AGROL",
+          "(ÁREAS|AREAS) +DE +TERRENO",
+          "CONCLUSIONES SOBRE ASPECTOS NORMATIVOS"
+        ],
+        "restos_de_plantilla": [
+          "El Retiro",
+          "017-15238",
+          "MI 12345",
+          "Carrizales",
+          "Los Salados",
+          "4hs-2",
+          "Acuerdo 014 de 2013",
+          "Geo portal El Retiro"
+        ],
+        "exigir_matricula_en_texto": true
+      }
+    }
+  ],
+  "referencia": {
+    "folios": 93,
+    "archivos": 1719,
+    "imagenes": 472,
+    "fotos_distintas": 445,
+    "estados": {
+      "Conciliado": 35,
+      "Fotos por conciliar": 10,
+      "Falta cuaderno": 1,
+      "Sin cuaderno · servidumbre": 41,
+      "Folio derivado · soporte en folio matriz": 6
+    },
+    "municipios": {
+      "Sonsón": 50,
+      "Aguadas": 43
+    },
+    "gestiones": {
+      "Compraventa": 35,
+      "Expropiación": 16,
+      "Servidumbre": 42
+    }
+  }
+}

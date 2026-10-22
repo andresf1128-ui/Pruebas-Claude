@@ -1,0 +1,24 @@
+{
+  "_ayuda": "Copiar a proyectos/<nombre>.json. Ver hidroarma.json como ejemplo completo.",
+  "nombre": "NOMBRE DEL PROYECTO",
+  "descripcion": "",
+  "matriz": {
+    "hoja": "Matriz maestra", "fila_encabezado": 5, "clave": "Matrícula",
+    "columnas": {
+      "lado": "ENCABEZADO", "mun": "ENCABEZADO", "gest": "ENCABEZADO", "rel_x": "ENCABEZADO", "ubic": "ENCABEZADO",
+      "area": "ENCABEZADO", "valor": "ENCABEZADO", "kmz": "ENCABEZADO", "campo": "ENCABEZADO", "vereda": "ENCABEZADO", "estreg": "ENCABEZADO"
+    },
+    "valor_propia": "Carpeta propia"
+  },
+  "patron_matricula": "(?<![\\d-])(\\d{3}-\\d{1,6})(?![\\d-])",
+  "patron_radicado": "^(\\d{8})\\b",
+  "rotulos_lado": { "PREFIJO_MATRICULA": "palabra_en_minuscula_del_rotulo" },
+  "gestiones": ["GESTION_1", "GESTION_2"],
+  "municipios": ["MUNICIPIO_1", "MUNICIPIO_2"],
+  "clases": [ { "nombre": "regex sobre el nombre en minúsculas", "ext": ["pdf"], "clase": "NOMBRE DEL TIPO" } ],
+  "clase_por_defecto": "Otro soporte",
+  "documentos": [ { "nombre": "CTL", "clases": ["CTL"], "excepto_gestiones": [] } ],
+  "alertas": [ { "cuando": "falta_doc", "doc": "CTL", "prioridad": "Alta", "texto": "Falta CTL en la carpeta" } ],
+  "formatos": [],
+  "referencia": { "folios": 0, "archivos": 0 }
+}
