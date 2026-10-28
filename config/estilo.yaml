@@ -1,0 +1,19 @@
+# Estilo único de los entregables. Se completa con la plantilla real de la firma.
+# Mientras un valor esté en null, el control de calidad lo reporta como pendiente de definir y no inventa.
+documento:
+  fuente: null            # p. ej. el tipo de letra de la plantilla vigente
+  tamano_cuerpo_pt: null
+  interlineado: null
+  margenes_cm: null
+cifras:
+  separador_miles: "."
+  separador_decimal: ","
+  moneda: "$ #.##0"
+  area_predio: "ha con 4 decimales"
+  area_construida: "m² con 2 decimales"
+imagenes:
+  ancho_cm: 14            # criterio ya adoptado en salidas gráficas
+  borde: "rectángulo biselado"
+  fuente_bajo_imagen: true
+fechas: "día mes año (ej. 28 de octubre de 2026)"
+idioma: "es-CO"

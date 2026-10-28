@@ -1,0 +1,40 @@
+# Parámetros del avalúo rural bajo la Resolución IGAC 941 de 2026.
+# estado: confirmado = cotejado con el texto oficial; por_confirmar = viene de instrucción del perito o de fuente secundaria.
+# Nadie debe marcar "confirmado" sin citar articulo y numeral leídos en el texto oficial.
+
+norma:
+  rectora: "Resolución IGAC 941 de 2026"
+  deroga: "Resolución IGAC 620 de 2008"
+  expedicion: "2026-07-31"      # fuente: IGAC (reporte secundario). por_confirmar
+  vigencia_desde: ""            # por confirmar en Diario Oficial
+  texto_oficial: "https://www.igac.gov.co/transparencia-y-acceso-a-la-informacion-publica/normograma/resolucion-941-de-2026"
+  estado: por_confirmar
+
+mercado_rural:
+  descuento_ofertas:
+    valor: 0.10                 # 10 % sobre el valor de oferta (factor de negociación)
+    fuente: "Instrucción del perito"
+    articulo_941: ""
+    estado: por_confirmar
+  cv_maximo:
+    valor: 0.10                 # hasta 10 %
+    fuente: "Instrucción del perito"
+    articulo_941: ""
+    estado: por_confirmar
+  n_minimo_ofertas:
+    valor: null                 # completar con lo que fije la 941
+    articulo_941: ""
+    estado: por_confirmar
+
+vigencia_avaluo:
+  valor_meses: null             # completar con lo que fije la 941
+  articulo_941: ""
+  estado: por_confirmar
+
+visita_tecnica:
+  obligatoria: true             # fuente secundaria: art. 10 (salvo orden escrita del solicitante de continuar con información disponible)
+  articulo_941: "10"
+  estado: por_confirmar
+
+sistema_referencia:
+  epsg_areas: 9377              # MAGNA-SIRGAS Origen Nacional
