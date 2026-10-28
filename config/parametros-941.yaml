@@ -1,40 +1,70 @@
 # Parámetros del avalúo rural bajo la Resolución IGAC 941 de 2026.
-# estado: confirmado = cotejado con el texto oficial; por_confirmar = viene de instrucción del perito o de fuente secundaria.
-# Nadie debe marcar "confirmado" sin citar articulo y numeral leídos en el texto oficial.
+# estado: confirmado = cotejado con el texto oficial (artículo citado); por_confirmar = falta cotejo o es criterio del perito.
+# Fuente de los cotejos: referencias/RESUMEN_941.md y referencias/Res_941_2026_texto_extraido_parcial.txt
 
 norma:
   rectora: "Resolución IGAC 941 de 2026"
-  deroga: "Resolución IGAC 620 de 2008"
-  expedicion: "2026-07-31"      # fuente: IGAC (reporte secundario). por_confirmar
-  vigencia_desde: ""            # por confirmar en Diario Oficial
+  deroga: "Resolución IGAC 620 de 2008, art. 13 y incisos 1, 2 y 3 del art. 14 de la Resolución 898 de 2014"
+  expedicion: "2026-07-31"
+  vigencia_desde: "Publicación en el Diario Oficial (fecha por confirmar)"
+  articulo_941: "60"
+  estado: confirmado
   texto_oficial: "https://www.igac.gov.co/transparencia-y-acceso-a-la-informacion-publica/normograma/resolucion-941-de-2026"
-  estado: por_confirmar
 
 mercado_rural:
-  descuento_ofertas:
-    valor: 0.10                 # 10 % sobre el valor de oferta (factor de negociación)
-    fuente: "Instrucción del perito"
-    articulo_941: ""
-    estado: por_confirmar
   cv_maximo:
-    valor: 0.10                 # hasta 10 %
-    fuente: "Instrucción del perito"
-    articulo_941: ""
-    estado: por_confirmar
+    valor: 0.10                 # hasta 10,0 % en inmuebles rurales
+    articulo_941: "21"
+    estado: confirmado
+  descuento_ofertas:            # porcentaje de negociación
+    valor: 0.10                 # criterio del perito; la 941 no fija un valor
+    articulo_941: "17 b) (debe estar justificado)"
+    requiere_justificacion_escrita: true
+    estado: por_confirmar       # pasa a confirmado cuando la justificación está redactada en el informe
+  depuracion_sobre: "valor de oferta negociado"       # art. 17 c)
+  homogeneizacion_por_factores: false                 # anexo técnico 2.1, Nota 2: no aplica
   n_minimo_ofertas:
-    valor: null                 # completar con lo que fije la 941
-    articulo_941: ""
+    valor: null                 # no aparece en los arts. 16 a 21
     estado: por_confirmar
 
-vigencia_avaluo:
-  valor_meses: null             # completar con lo que fije la 941
-  articulo_941: ""
+depreciacion:
+  modelo: "Ross-Heidecke (continuo)"
+  articulo_941: "30"
+  excluye: "modelos discontinuos o en escalera"
+  vidas_utiles_referencia_anos:   # anexo 2.3.1, Tabla 2 (guía; hay que sustentar)
+    temporales: 5
+    vida_corta: 30
+    vida_media: 50
+    vida_larga: 70
+    permanentes: 100
+    patrimoniales: ">100"
+  vida_util_prolongada:
+    formula: "VUP = edad + vida remanente"
+    aplica_desde: 0.90            # del valor de la vida útil de referencia
+    calificaciones_heidecke_admisibles: [2.5, 3.0, 3.5, 4.0, 4.5]
+  tabla_coeficientes_heidecke: null   # faltan las páginas del anexo (2.3.3 y 2.3.4). Hasta tenerlas no se calcula la depreciación
   estado: por_confirmar
 
 visita_tecnica:
-  obligatoria: true             # fuente secundaria: art. 10 (salvo orden escrita del solicitante de continuar con información disponible)
-  articulo_941: "10"
+  obligatoria: true
+  articulo_941: "10 y 13.4"
+  realiza_y_firma: "avaluador RAA con la categoría requerida"
+  estado: confirmado
+
+plazo_entrega:
+  dias_habiles: 30
+  articulo_941: "9 (se puede pactar otro)"
+  estado: confirmado
+
+vigencia_avaluo:
+  valor_meses: null             # no aparece en los artículos leídos de la 941; verificar en el Decreto 1170 de 2015
   estado: por_confirmar
 
+inteligencia_artificial:
+  articulo_941: "20, parágrafo 2"
+  regla: "AVM, modelos econométricos y de aprendizaje automático o IA son herramientas complementarias; requieren manual auditable, calidad de datos, métricas de error y validación del avaluador; el resultado del modelo no puede ser por sí solo el avalúo"
+  uso_en_este_proyecto: "ningún modelo de IA determina el valor; los cálculos son scripts y hojas con fórmulas visibles"
+  estado: confirmado
+
 sistema_referencia:
-  epsg_areas: 9377              # MAGNA-SIRGAS Origen Nacional
+  epsg_areas: 9377              # MAGNA-SIRGAS Origen Nacional (el informe debe indicar el sistema de las coordenadas del centroide, art. 14.7)

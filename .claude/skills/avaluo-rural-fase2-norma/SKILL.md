@@ -15,22 +15,24 @@ La norma es lo más sensible del avalúo: rigor absoluto, nada de suposiciones. 
 5. Áreas y porcentajes de cruces sobre el polígono exacto, en EPSG:9377.
 6. Entregable sin notas de «por verificar» ni «pendiente». Lo que no esté publicado se explica con la norma de jerarquía aplicable (por ejemplo, determinante ambiental de superior jerarquía, art. 10 de la Ley 388 de 1997, a confirmar en el texto).
 
-## A. Resolución IGAC 941 de 2026 (lectura previa obligatoria)
-Antes de trabajar el predio, leer el texto oficial completo y su anexo técnico (normograma del IGAC o Diario Oficial) y llenar `config/parametros-941.yaml` con artículo y numeral. Extraer, como mínimo, lo que la 941 diga sobre:
-- Objeto, alcance, definiciones, vigencia de la norma y régimen de transición para encargos en curso.
-- Exigencias al avaluador (inscripción RAA, responsabilidad, independencia) y a la solicitud/encargo.
-- **Visita técnica** (el art. 10 sería el aplicable, según fuentes secundarias: confirmar).
-- Contenido mínimo del informe y de sus anexos; información que debe declarar.
-- Métodos para predios rurales (comparación de mercado, capitalización de renta, costo de reposición para construcciones, residual cuando aplique) y condiciones de uso de cada uno.
-- Tratamiento de las ofertas: depuración, factor de negociación, homogeneización, **coeficiente de variación máximo** y número mínimo de datos.
-- Depreciación de construcciones y vida útil.
-- Cálculo de valores de terreno, construcciones, cultivos, plantaciones y anexos.
-- Vigencia del avalúo.
-- **Uso de inteligencia artificial** y de herramientas automatizadas: qué permite, qué exige declarar y qué prohíbe (las fuentes secundarias reportan un «uso controlado»; leer el artículo y aplicarlo).
-- Uso actual y cobertura (el art. 46 se cita en `copernicus-sentinel-avaluos`: confirmar el contenido).
-- Casos especiales (servidumbres, expropiación, procesos con el Estado, tierras con restricciones).
+## A. Resolución IGAC 941 de 2026
+El texto oficial está en `referencias/` y su tabla de requisitos en `referencias/RESUMEN_941.md` (artículos 1 a 21, 27 a 30, 46 a 49, 57 a 61 y partes del anexo técnico). Antes de cada encargo:
+1. Releer la tabla de requisitos y verificar que `config/parametros-941.yaml` siga coincidiendo con el texto.
+2. Confirmar el **marco jurídico del encargo** que informó el solicitante (art. 7): ese marco rige el avalúo y sus recursos y términos.
+3. Confirmar que la norma está vigente para el encargo: rige desde su publicación en el Diario Oficial (art. 60) y los avalúos iniciados antes siguen con la norma anterior (art. 59).
+4. Armar la **lista de control del informe** con el contenido mínimo del art. 14 (13 numerales) y con lo que el art. 12 exige verificar sobre el inmueble.
+5. Registrar lo que aún no se ha podido cotejar (páginas faltantes del anexo técnico: tablas de estados de conservación y coeficientes de Ross-Heidecke, ejemplos de renta agropecuaria) y no usarlo en cálculos hasta tenerlo.
 
-Resultado: una **tabla de requisitos de la 941** (artículo → obligación → dónde se cumple en el encargo). Esa tabla alimenta la lista de control de la fase 6.
+Puntos de la 941 que más pesan en una finca:
+- Visita técnica obligatoria, hecha y firmada por el avaluador RAA con la categoría requerida (arts. 10 y 13.4).
+- Uso actual vs. uso normado: constancia expresa si hay conflicto (art. 12.10).
+- Afectaciones, reservas, áreas de protección y zonas de riesgo del POT se revisan **aunque no estén inscritas en el folio**, siempre que estén delimitadas y en firme (art. 12.12 b).
+- Servidumbres aparentes y continuas: reflejar la limitación descontando el pago por servidumbre o avaluando con la restricción (art. 12.12 c).
+- Rural: AHT, clases agrológicas, estudios de suelos, mapas de aptitud y frontera agrícola (arts. 11.1 f, 14.7 j y 46).
+- Suelo de protección y ronda hídrica: sin castigos por la sola condición; se sustenta la incidencia (art. 49).
+- Inteligencia artificial y modelos automatizados: solo como herramienta complementaria, con manual auditable, métricas de error y validación del avaluador; el resultado de un modelo no puede ser por sí solo el avalúo (art. 20, parágrafo 2). Este proyecto no usa ningún modelo para determinar el valor.
+
+Resultado: la **lista de control del informe** y la nota de lo pendiente de cotejo. Alimentan la fase 6.
 
 ## B. Matriz de fuentes oficiales por tema
 | Tema | Fuente oficial a consultar | Qué se extrae |

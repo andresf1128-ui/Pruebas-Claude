@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Estadística del estudio de mercado rural.
+"""Estadística del estudio de mercado rural (Resolución IGAC 941 de 2026).
 
-Lee un CSV de ofertas, aplica el descuento de negociación, calcula el valor unitario
-y los estadísticos (n, promedio, mediana, desviación muestral, coeficiente de variación,
-límites y cumplimiento del CV máximo). Los parámetros salen de config/parametros-941.yaml.
+Lee un CSV de ofertas, aplica el porcentaje de negociación, descuenta cultivos permanentes y
+construcciones, calcula el valor del terreno por hectárea y los estadísticos (n, promedio, mediana,
+desviación muestral, coeficiente de variación, límites y cumplimiento del CV máximo, art. 21).
+
+No homogeneiza por factores: el anexo técnico 2.1 (Nota 2) lo excluye. La depuración se hace sobre el
+valor de oferta ya negociado (art. 17 c). El porcentaje de negociación debe estar justificado (art. 17 b).
 
 CSV de entrada (encabezados obligatorios):
     id, valor_oferta, area_ha            valor total ofertado y área del terreno en hectáreas
 Opcionales:
-    valor_construcciones                 valor depreciado de las construcciones (se resta al valor negociado)
+    negociacion                          porcentaje de negociación de la oferta (0,10 = 10 %). Si falta, se usa el parámetro
+    valor_construcciones                 valor depreciado de construcciones y anexos (se resta al valor negociado)
+    valor_cultivos                       valor de cultivos permanentes e infraestructura productiva (se resta)
     incluir                              SI/NO (por defecto SI)
-    factor_homogeneizacion               producto de los factores aplicados al $/ha (por defecto 1)
 
 Uso:
     python3 scripts/estadisticos_mercado.py ofertas.csv [--salida resultado.csv]
@@ -49,29 +53,30 @@ def leer_ofertas(ruta):
         return list(lector)
 
 
-def calcular(filas, descuento, cv_max):
+def calcular(filas, negociacion_defecto, cv_max):
     detalle = []
     for i, f in enumerate(filas, start=2):
         valor = numero(f["valor_oferta"], "valor_oferta", i)
         area = numero(f["area_ha"], "area_ha", i)
         if area <= 0 or valor <= 0:
             raise ValueError(f"Fila {i}: valor y área deben ser mayores que cero")
+        neg = numero(f["negociacion"], "negociacion", i) if (f.get("negociacion") or "").strip() else negociacion_defecto
+        if not 0 <= neg < 1:
+            raise ValueError(f"Fila {i}: la negociación debe estar entre 0 y 1 (por ejemplo 0,10)")
         constr = numero(f.get("valor_construcciones") or 0, "valor_construcciones", i)
-        factor = numero(f.get("factor_homogeneizacion") or 1, "factor_homogeneizacion", i)
-        negociado = valor * (1 - descuento)
-        terreno = negociado - constr
+        cultivos = numero(f.get("valor_cultivos") or 0, "valor_cultivos", i)
+        negociado = valor * (1 - neg)
+        terreno = negociado - constr - cultivos
         if terreno <= 0:
-            raise ValueError(f"Fila {i}: las construcciones superan el valor negociado")
-        unitario = terreno / area
+            raise ValueError(f"Fila {i}: construcciones y cultivos superan el valor negociado")
         incluir = (f.get("incluir") or "SI").strip().upper() in ("SI", "SÍ", "S", "1", "TRUE")
         detalle.append({
-            "id": f["id"], "valor_oferta": valor, "descuento": descuento,
-            "valor_negociado": negociado, "valor_construcciones": constr,
-            "valor_terreno": terreno, "area_ha": area, "valor_ha": unitario,
-            "factor_homogeneizacion": factor, "valor_ha_homogeneizado": unitario * factor,
+            "id": f["id"], "valor_oferta": valor, "negociacion": neg,
+            "valor_negociado": negociado, "valor_construcciones": constr, "valor_cultivos": cultivos,
+            "valor_terreno": terreno, "area_ha": area, "valor_terreno_ha": terreno / area,
             "incluir": "SI" if incluir else "NO",
         })
-    datos = [d["valor_ha_homogeneizado"] for d in detalle if d["incluir"] == "SI"]
+    datos = [d["valor_terreno_ha"] for d in detalle if d["incluir"] == "SI"]
     est = {"n": len(datos)}
     if datos:
         prom = statistics.fmean(datos)
@@ -96,17 +101,15 @@ def main():
     a = ap.parse_args()
 
     desc, cv = cargar_parametros(a.parametros)
-    avisos = []
-    for nombre, p in (("descuento_ofertas", desc), ("cv_maximo", cv)):
-        if p["estado"] != "confirmado":
-            avisos.append(f"{nombre} = {p['valor']} está 'por_confirmar' frente al texto oficial de la 941")
+    if desc.get("requiere_justificacion_escrita"):
+        print("AVISO: el porcentaje de negociación debe justificarse en el informe (art. 17 b de la 941)", file=sys.stderr)
+    if cv["estado"] != "confirmado":
+        print(f"AVISO: cv_maximo = {cv['valor']} está por confirmar", file=sys.stderr)
     try:
         detalle, est = calcular(leer_ofertas(a.ofertas), desc["valor"], cv["valor"])
     except ValueError as e:
         sys.exit(f"ERROR: {e}")
 
-    for av in avisos:
-        print(f"AVISO: {av}", file=sys.stderr)
     for k, v in est.items():
         print(f"{k}: {v:.4f}" if isinstance(v, float) else f"{k}: {v}")
     if a.salida:

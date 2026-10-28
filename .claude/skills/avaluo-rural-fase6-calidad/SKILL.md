@@ -22,7 +22,10 @@ Complementa `control-calidad-documentos` (regla de oro: ningún documento se gua
 - Las áreas y porcentajes de cruces coinciden con el cálculo en EPSG:9377.
 - El uso del suelo y las restricciones citadas corresponden al municipio y a la subzona del predio.
 - Los parámetros de `config/parametros-941.yaml` están todos en `confirmado` antes de entregar el informe definitivo. Si alguno está por confirmar: NO APROBADO.
-- Lo que la 941 diga sobre inteligencia artificial está cumplido.
+- Los 13 numerales del art. 14 están presentes y completos (ver `referencias/RESUMEN_941.md`, sección 3).
+- Visita técnica hecha y firmada por el avaluador RAA, o la orden escrita del solicitante archivada (arts. 10 y 13.4).
+- Certificado RAA vigente con las categorías requeridas anexo; centroide con coordenadas tomadas en sitio y sistema de referencia indicado.
+- Ningún modelo de IA determina el valor. Si se usó algún modelo automatizado, existe el manual auditable con métricas de error y la validación del avaluador (art. 20, parágrafo 2).
 
 ## B. Jurídico
 - Todo documento aportado está listado y revisado; fecha de impresión del CTL literal.
@@ -38,14 +41,18 @@ Complementa `control-calidad-documentos` (regla de oro: ningún documento se gua
 
 ## D. Mercado
 - Cada oferta con soporte (enlace, captura, contacto) y fecha.
-- El descuento y el CV máximo vienen de la celda de parámetros, no escritos en fórmulas.
+- El porcentaje de negociación **está justificado por escrito** (art. 17 b) y el CV máximo (10 %, art. 21) viene de la celda de parámetros, no escrito en fórmulas.
+- La depuración se hizo sobre el valor negociado, se descontaron construcciones y cultivos permanentes de las ofertas y **no se aplicaron factores de homogeneización** (anexo 2.1, Nota 2).
+- La tabla del estudio tiene las columnas del anexo 2.1 y cada oferta tiene URL, captura de pantalla, fecha y teléfono.
 - Recalcular los estadísticos con `scripts/estadisticos_mercado.py`: debe coincidir con el libro.
 - Exclusiones documentadas. Factores de homogeneización justificados.
 - El valor adoptado está dentro del rango y se sustenta.
 
 ## E. Liquidación
 - Suma de partes = total. Redondeos solo al final.
-- Depreciación: método, edad, vida útil y estado coherentes con el formato de construcciones y las fotos.
+- Depreciación con el modelo continuo Ross-Heidecke (art. 30), sin modelos en escalera; edad, vida útil (Tabla 2 del anexo o prolongada sustentada) y estado coherentes con el formato de construcciones y las fotos.
+- Suelo de protección o ronda hídrica: sin castigos por la sola condición (art. 49).
+- Memoria de cálculo con todas las ecuaciones, variables, datos y resultados (art. 14.10 c).
 - Tipología IGAC coherente con las fotos y la descripción.
 - Valor por hectárea y proporciones razonables frente al mercado y al catastro.
 - Cultivos/plantaciones sin doble conteo con el terreno.

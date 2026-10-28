@@ -40,6 +40,13 @@ El avaluador no emite concepto de títulos ni sanea la propiedad, pero debe leer
 - Contratos de arrendamiento, aparcería o comodato que afecten la tenencia.
 - Poderes y representación legal, cuando quien entrega el predio no es el titular.
 
+## Lo que la 941 exige del componente jurídico
+- Observaciones jurídicas del informe: las anotaciones **vigentes** al verificar el certificado (afectaciones, gravámenes, limitaciones de dominio, embargos, hipotecas, cambios de áreas, servidumbres) (art. 14.4 d).
+- Título de adquisición, propietario, matrícula y, cuando exista, NPN (art. 14.2 y 14.4).
+- Si hay construcciones sin licencia: constancia en el informe; las áreas a valorar son las del solicitante y la responsabilidad sobre ellas es suya (arts. 12.6 y 13.6). Las inconsistencias entre documentos y realidad se informan por escrito al solicitante (art. 13.6).
+- Documentos faltantes: requerimiento escrito al solicitante (art. 13.1, con el art. 17 de la Ley 1437 de 2011).
+- Servidumbres aparentes y continuas: se consideran en el avalúo aunque no consten en el folio (art. 12.12 c).
+
 ## Conciliación de áreas y linderos
 Tabla única por predio con: área según CTL / escritura / catastro / levantamiento / medición propia del perito (EPSG:9377), diferencia absoluta y porcentual, y el criterio para adoptar el área del avalúo. El área de avalúo se justifica; si difiere de los documentos, el informe lo declara y explica.
 

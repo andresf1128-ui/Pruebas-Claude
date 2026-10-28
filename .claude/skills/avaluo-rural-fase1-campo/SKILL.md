@@ -12,7 +12,8 @@ Objetivo: llegar a la visita con todo preparado y salir con datos completos, geo
 2. Preparar la cartografía offline: polígono catastral del predio, vías de acceso, ortofoto o imagen satelital reciente (apoyarse en `copernicus-sentinel-avaluos`) y las capas normativas que se conocen. Exportar a KMZ/GeoJSON con `kmz-sig-profesional`.
 3. Cargar el formulario de campo (ver `referencias/ficha-campo.md`) en la herramienta elegida (sección 2).
 4. Cargar la lista de verificación de campo: linderos, acceso, servicios, construcciones, cultivos, fuentes de agua, conflictos o afectaciones visibles, vecinos, ofertas de la zona.
-5. Confirmar la **visita técnica**: la 941 la exige (según fuentes secundarias, art. 10). Si el solicitante ordena por escrito continuar sin visita, esa orden se archiva en el expediente y el informe lo declara. Verifica el artículo en el texto oficial.
+5. Confirmar la **visita técnica**: la 941 la exige (art. 10) y debe hacerla el avaluador RAA que firma el informe (art. 13.4). Si no es posible ingresar al inmueble, se informa por escrito al solicitante; solo él puede ordenar, bajo su responsabilidad y por escrito, avaluar con la información suministrada, y esa orden se archiva y se declara en el informe. Sin esa orden, o con información insuficiente, no se continúa. Pedir al solicitante nombre, teléfonos y correo de quien acompañará la visita (art. 8, parágrafo 1).
+6. Plazo: 30 días hábiles desde el recibo de la solicitud con toda la información (art. 9), salvo otro término pactado en el contrato.
 
 ## 2. Herramientas recomendadas
 | Necesidad | Herramienta | Nota |
@@ -27,6 +28,8 @@ Objetivo: llegar a la visita con todo preparado y salir con datos completos, geo
 Si el perito no ha definido herramienta, proponer: **QField o Kobo para el formulario + Avenza Maps para navegación**. Es una sugerencia que se ajusta a su práctica.
 
 ## 3. Reglas de fotos (uniformes, rápidas, rotuladas)
+La 941 pide un registro fotográfico y/o fílmico **amplio y suficiente** de todo lo que entra en la liquidación: terreno, construcciones, anexos y cultivos (art. 13.5).
+
 **Durante la visita** (consigna única para quien fotografía): tomar siempre en horizontal, con GPS activado, y seguir este guion por unidad. Una unidad es el predio o cada construcción.
 - **Predio (P):** acceso/entrada, panorámicas de linderos (N, S, E, O), vías internas, topografía, cobertura y uso (pastos, cultivos, bosque), fuentes de agua, cercas, mojones, servicios, y detalles relevantes (erosión, invasión, afectaciones).
 - **Construcción (C1, C2, …):** fachada principal, otras fachadas, cubierta, estructura visible, muros, pisos, cielos, carpintería, cocina, baños, instalaciones, patologías y estado general, anexos.
@@ -47,7 +50,7 @@ Si el perito no ha definido herramienta, proponer: **QField o Kobo para el formu
 Por cada construcción diligenciar el **formato de descripción de construcciones** del perito y clasificarla con el **catálogo de tipologías constructivas del IGAC**:
 1. Colocar la plantilla vigente del formato en `plantillas/descripcion_construcciones.xlsx` (o .docx). Sin plantilla el agente no inventa el formato: se la pide al perito.
 2. Colocar el catálogo de tipologías del IGAC (la versión que use el perito) en `referencias/catalogo_tipologias_igac.*`. La tipología se asigna **por comparación con las definiciones y fotos del catálogo**, citando su código; si dos tipologías compiten, se anotan las dos con el criterio de decisión del perito.
-3. Datos mínimos por construcción: código (C1…), uso, área construida (con método de medición), número de pisos, año o edad (fuente: licencia, escritura, testimonio, dato del propietario), estructura, cubierta, muros, pisos, cielos, carpintería, baños y cocina, instalaciones, estado de conservación (escala 1 a 5), reformas, anexos y fotos asociadas (nombres del manifiesto).
+3. Datos mínimos por construcción (art. 11.2 de la 941): código (C1…), **tipología constructiva**, uso, características físicas predominantes, **condición física y jurídica**, área construida (con método de medición), número de pisos, **edad** (fuente: licencia, escritura, testimonio, dato del propietario), elementos y materiales de estructura y acabados, obras complementarias, **estado de conservación** (escala de Heidecke, de 1 a 5 con medios puntos), **vida útil** de referencia o prolongada con su sustento, reformas o intervenciones que afecten la vida útil, anexos y fotos asociadas (nombres del manifiesto). Las construcciones sin licencia se registran con la constancia correspondiente; las áreas a valorar son las que indique el solicitante (art. 12.6).
 4. Estimar sobre el terreno el estado de conservación y consignar las patologías con foto.
 5. Verificar que la suma de áreas construidas cuadre con lo que dicen las escrituras, el catastro y la licencia; las diferencias pasan a la fase 3 y al informe.
 
